@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+scikit-learn
+imutils
+opencv-python
+numpy
+scikit-image
