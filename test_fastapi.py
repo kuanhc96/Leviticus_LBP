@@ -100,6 +100,7 @@ def train(request: LBPTrainRequest) -> dict:
         model = randomizedSearch.best_estimator_
     else:
         model = LinearSVC(C=C_value)
+        model.fit(trainX, trainLabels)
     print("[INFO] Model Fitting Complete")
 
     if trainOnly:
