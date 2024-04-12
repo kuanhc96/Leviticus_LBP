@@ -1,26 +1,33 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
-from toolbox.tf.localbinarypatterns import LocalBinaryPatterns
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, RepeatedKFold
 from sklearn.metrics import classification_report
 from imutils import paths
 from scipy.stats import uniform
+
+from toolbox.tf.localbinarypatterns import LocalBinaryPatterns
+from config import PKL_PATH
+
 import numpy as np
 import cv2
 import os
+import pickle
+
 
 # Sample cURL:
 # curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"trainOnly": true,"dataset":"/app/texture_dataset","numPoints":24, "radius":8}'
 app = FastAPI()
 
 class LBPPredictRequest(BaseModel):
+    trainTaskId: str
     trainDataset: str # required
     predictDataset: str # required
     modelLocation: str # required
 
 class LBPTrainRequest(BaseModel):
+    taskId: str
     trainOnly: Optional[bool] = False
     numPoints: Optional[int] = 24
     radius: Optional[int] = 8
@@ -30,6 +37,8 @@ class LBPTrainRequest(BaseModel):
     dataset: str
 
 class LBPTrainResponse(BaseModel):
+    taskId: str
+    modelPath: str
     accuracy: float
     C: float
     class_weight: float
@@ -52,6 +61,7 @@ def train(request: LBPTrainRequest) -> dict:
     # imitialize the local binary patterns descriptor along with the data and label lists
     dataset = request.dataset
     print(f"[INFO] Dataset Received For Training: {dataset.split(os.path.sep)[-1]}")
+    taskId = request.taskId
     trainOnly = request.trainOnly
     numPoints = request.numPoints
     C_value = request.C
@@ -133,8 +143,15 @@ def train(request: LBPTrainRequest) -> dict:
     accuracy = model.score(testX, testLabels)
     classificationReport = classification_report(testLabels, predictions, labels=uniqueLabels)
     print("[INFO] Train Request Complete, Returning Training Results")
+    print("[INFO] Saving Trained Model")
+    modelPath = os.path.join(PKL_PATH, taskId + ".pkl")
+    with open(modelPath, 'wb') as f:
+        pickle.dump(model, f)
+    print("[INFO] Training Model Saved")
 
-    return {"accuracy": accuracy, **model.get_params(), "classificationReport": classificationReport}
+
+    return {"taskId": taskId, "modelPath": modelPath, "accuracy": accuracy, 
+            **model.get_params(), "classificationReport": classificationReport}
 
 def _isEqualSubDirs(dir1, dir2):
     dir1SubDirs = os.listdir(dir1)
@@ -149,6 +166,9 @@ def _isEqualSubDirs(dir1, dir2):
 
 def predict(request: LBPPredictRequest) -> dict:
     isEqualSubDirs = _isEqualSubDirs(request.trainDataset, request.predictDataset)
+    trainTaskId = request.trainTaskId
+    with open(os.path.join(PKL_PATH, trainTaskId + ".pkl"), 'rb') as f:
+        savedModel = pickle.load(f)
 
     if isEqualSubDirs:
         # perform prediction on the images and use the directories as ground truth
