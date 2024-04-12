@@ -16,7 +16,9 @@ import os
 app = FastAPI()
 
 class LBPPredictRequest(BaseModel):
-    dummy: str
+    trainDataset: str # required
+    predictDataset: str # required
+    modelLocation: str # required
 
 class LBPTrainRequest(BaseModel):
     trainOnly: Optional[bool] = False
@@ -134,5 +136,28 @@ def train(request: LBPTrainRequest) -> dict:
 
     return {"accuracy": accuracy, **model.get_params(), "classificationReport": classificationReport}
 
+def _isEqualSubDirs(dir1, dir2):
+    dir1SubDirs = os.listdir(dir1)
+    dir2SubDirs = os.listdir(dir2)
+    dir1SubDirs = dir1SubDirs.sort()
+    dir2SubDirs = dir2SubDirs.sort()
+
+    for (subDir1, subDir2) in zip(dir1SubDirs, dir2SubDirs):
+        if subDir1 != subDir2:
+            return False
+    return True
+
 def predict(request: LBPPredictRequest) -> dict:
-    pass
+    isEqualSubDirs = _isEqualSubDirs(request.trainDataset, request.predictDataset)
+
+    if isEqualSubDirs:
+        # perform prediction on the images and use the directories as ground truth
+        pass
+    elif len(os.listdir()) == 0:
+        # This is a single directory of images; 
+        # perform the prediction without regards to the ground truth
+        pass
+    else:
+        # there is an error in the input directory
+        pass
+
