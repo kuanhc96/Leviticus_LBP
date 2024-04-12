@@ -15,6 +15,9 @@ import os
 # curl -X POST "http://localhost:8000/train" -H "Content-Type: application/json" -d '{"trainOnly": true,"dataset":"/app/texture_dataset","numPoints":24, "radius":8}'
 app = FastAPI()
 
+class LBPPredictRequest(BaseModel):
+    dummy: str
+
 class LBPTrainRequest(BaseModel):
     trainOnly: Optional[bool] = False
     numPoints: Optional[int] = 24
@@ -130,3 +133,6 @@ def train(request: LBPTrainRequest) -> dict:
     print("[INFO] Train Request Complete, Returning Training Results")
 
     return {"accuracy": accuracy, **model.get_params(), "classificationReport": classificationReport}
+
+def predict(request: LBPPredictRequest) -> dict:
+    pass
