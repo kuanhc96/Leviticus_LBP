@@ -156,6 +156,10 @@ def train(request: LBPTrainRequest) -> dict:
 def _isEqualSubDirs(dir1, dir2):
     dir1SubDirs = os.listdir(dir1)
     dir2SubDirs = os.listdir(dir2)
+
+    if len(dir1SubDirs) != len(dir2SubDirs):
+        return False
+
     dir1SubDirs = dir1SubDirs.sort()
     dir2SubDirs = dir2SubDirs.sort()
 
