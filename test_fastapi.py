@@ -164,6 +164,7 @@ def _isEqualSubDirs(dir1, dir2):
             return False
     return True
 
+@app.post("/predict")
 def predict(request: LBPPredictRequest) -> dict:
     isEqualSubDirs = _isEqualSubDirs(request.trainDataset, request.predictDataset)
     trainTaskId = request.trainTaskId
