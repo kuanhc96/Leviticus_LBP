@@ -14,7 +14,7 @@ VOLUME ./train/texture_dataset /app/train/texture_dataset
 
 VOLUME ./predict/texture_dataset /app/predict/texture_dataset
 
-VOLUME ./pickled_models /app/pickled_models
+VOLUME ./pickled_models:/app/pickled_models
 
 EXPOSE 8000
 

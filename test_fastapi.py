@@ -221,7 +221,8 @@ def predict(request: LBPPredictRequest) -> dict:
     imageNames = []
 
     isEqualSubDirs = _isEqualSubDirs(trainDataset, predictDataset)
-    if not isEqualSubDirs and len(os.listdir()) != 0:
+    isDirOfImages = len(next(os.walk(predictDataset))[1]) == 0
+    if not isEqualSubDirs and not isDirOfImages:
         # there is an error in the input directory
         return {"error": "Directory mismatch - incorrect number of subdirectories"}
 
@@ -240,7 +241,8 @@ def predict(request: LBPPredictRequest) -> dict:
         # The labels are obtained from the path names
         labels.append(imagePath.split(os.path.sep)[-2])
         # The image names are obtained from the path names
-        imageNames.append(imagePath.split(os.path.sep)[-1])
+        imageName = os.path.join(imagePath.split(os.path.sep)[-2], imagePath.split(os.path.sep)[-1]) 
+        imageNames.append(imageName)
         # The histograms of the images will form the actual training set
         testX.append(hist)
 
@@ -259,7 +261,7 @@ def predict(request: LBPPredictRequest) -> dict:
             "predictions": dict(zip(imageNames, predictions.tolist()))
             }
 
-    elif len(os.listdir()) == 0:
+    elif isDirOfImages:
         # This is a single directory of images; 
         # perform the prediction without regards to the ground truth
         accuracy = None
@@ -273,14 +275,14 @@ def predict(request: LBPPredictRequest) -> dict:
 # Check to see if the directory for predict has the same structure of
 # the directory that was provided for training
 def _isEqualSubDirs(dir1, dir2):
-    dir1SubDirs = os.listdir(dir1)
-    dir2SubDirs = os.listdir(dir2)
+    dir1SubDirs = next(os.walk(dir1))[1]
+    dir2SubDirs = next(os.walk(dir2))[1]
 
     if len(dir1SubDirs) != len(dir2SubDirs):
         return False
 
-    dir1SubDirs = dir1SubDirs.sort()
-    dir2SubDirs = dir2SubDirs.sort()
+    dir1SubDirs.sort()
+    dir2SubDirs.sort()
 
     for (subDir1, subDir2) in zip(dir1SubDirs, dir2SubDirs):
         if subDir1 != subDir2:
