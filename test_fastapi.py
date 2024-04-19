@@ -210,6 +210,7 @@ def train(request: LBPTrainRequest) -> dict:
 # results of the prediction can simply be returned
 @app.post("/predict")
 def predict(request: LBPPredictRequest) -> dict:
+    # obtain request parameters
     trainDataset = request.trainDataset
     predictDataset = request.predictDataset
     trainTaskId = request.trainTaskId
@@ -220,20 +221,29 @@ def predict(request: LBPPredictRequest) -> dict:
     testX = []
     imageNames = []
 
+    # check if predict directory has the same structure as the train directory
     isEqualSubDirs = _isEqualSubDirs(trainDataset, predictDataset)
+    # check if the directory is a series of images with no directory
     isDirOfImages = len(next(os.walk(predictDataset))[1]) == 0
+    # The predict directory has to be one of the above
     if not isEqualSubDirs and not isDirOfImages:
         # there is an error in the input directory
         return {"error": "Directory mismatch - incorrect number of subdirectories"}
 
+    # saved pickled model
     with open(os.path.join(PKL_PATH, trainTaskId + ".pkl"), 'rb') as f:
         savedModel = pickle.load(f)
 
+    # get list of images
     imagePaths = list(paths.list_images(predictDataset))
+
+    # initialize LBP algorithm
     desc = LocalBinaryPatterns(numPoints, radius)
 
     for imagePath in imagePaths:
+        # load image
         image = cv2.imread(imagePath)
+        # grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # get histogram using the LBP algorithm
         hist = desc.describe(gray)
@@ -247,6 +257,8 @@ def predict(request: LBPPredictRequest) -> dict:
         testX.append(hist)
 
     testX = np.array(testX)
+
+    # make predictions
     predictions = savedModel.predict(testX)
 
     if isEqualSubDirs:
