@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV, Repeat
 from sklearn.metrics import classification_report
 from imutils import paths
 from scipy.stats import uniform
+from toolbox.utils.compare_directories import _isEqualSubDirs
 import numpy as np
 import cv2
 import os
