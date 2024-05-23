@@ -10,11 +10,11 @@ RUN pip install --progress-bar off --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
-VOLUME ./texture_dataset /app/train/texture_dataset
+VOLUME ./train/texture_dataset /app/train/texture_dataset
 
-VOLUME ./texture_dataset /app/predict/texture_dataset
+VOLUME ./predict/texture_dataset /app/predict/texture_dataset
 
-VOLUME ./pickled_models /app/pickled_models
+VOLUME ./pickled_models:/app/pickled_models
 
 EXPOSE 8000
 
