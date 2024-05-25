@@ -262,25 +262,17 @@ def predict(request: LBPPredictRequest) -> dict:
     # make predictions
     predictions = savedModel.predict(testX)
 
+    accuracy = None
+    report = None
     if isEqualSubDirs:
         # perform prediction on the images and use the directories as ground truth
         uniqueLabels = np.unique(labels)
 
         accuracy = savedModel.score(testX, labels)
         report = classification_report(labels, predictions, labels=uniqueLabels)
-        return {
-            "accuracy": accuracy,
-            "classificationReport": report, 
-            "predictions": dict(zip(imageNames, predictions.tolist()))
-            }
 
-    elif isDirOfImages:
-        # This is a single directory of images; 
-        # perform the prediction without regards to the ground truth
-        accuracy = None
-        report = None
-        return {
-            "accuracy": None,
-            "classificationReport": None,
-            "predictions": dict(zip(imageNames, predictions.tolist()))
+    return {
+        "accuracy": accuracy,
+        "classificationReport": report, 
+        "predictions": dict(zip(imageNames, predictions.tolist()))
         }
