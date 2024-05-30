@@ -5,3 +5,4 @@ imutils
 opencv-python
 numpy
 scikit-image
+tensorflow
