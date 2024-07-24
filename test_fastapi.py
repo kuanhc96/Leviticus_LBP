@@ -67,19 +67,8 @@ class LBPTrainResponse(BaseModel):
     # or it is simply the original C value sent from the master node
     C: float
 
-    """SVC parameters"""
-    class_weight: float
-    dual: str
-    fit_intercept: bool
-    intercept_scaling: int
-    loss: str
-    max_iter: int
-    multi_class: str
-    penalty: str
-    random_state: int
-    tol: float
-    verbose: int
-    """SVC parameters"""
+    numPoints: int
+    radius: int
 
     # This is a long string representing the classification report 
     # of the resulting model
@@ -95,7 +84,7 @@ class LBPTrainResponse(BaseModel):
 # Otherwise, 10% of the data will be set aside for
 # testing
 @app.post("/train")
-def train(request: LBPTrainRequest) -> dict:
+def train(request: LBPTrainRequest) -> LBPTrainResponse:
     print("[INFO] Received Local Binary Pattern Training Request")
     # initialize the local binary patterns descriptor along with the data and label lists
     dataset = request.dataset
@@ -199,9 +188,18 @@ def train(request: LBPTrainRequest) -> dict:
         pickle.dump(model, f)
     print("[INFO] Training Model Saved")
 
+    response = LBPTrainResponse(
+        taskId=taskId,
+        modelPath=modelPath,
+        accuracy=accuracy,
+        classificationReport=classificationReport,
+        C=C_value,
+        radius=radius,
+        numPoints=numPoints
+    )
 
-    return {"taskId": taskId, "modelPath": modelPath, "accuracy": accuracy, 
-            **model.get_params(), "classificationReport": classificationReport}
+
+    return response
 
 # If the directory for predict has the same structure of
 # the directory that was provided for training, then the
