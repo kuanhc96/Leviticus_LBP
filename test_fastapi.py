@@ -52,7 +52,7 @@ class LBPTrainRequest(BaseModel):
     # If C is provided, it is assumed that it will be > 0.0,
     # in which case hyperparameter search will not be called and the provided
     # C value will simply be used for training
-    C: Optional[float] = 0.0
+    cValue: Optional[float] = 0.0
     # This is a string that represents the path to the training data
     dataset: str
 
@@ -92,7 +92,7 @@ def train(request: LBPTrainRequest) -> LBPTrainResponse:
     taskId = request.taskId
     trainOnly = request.trainOnly
     numPoints = request.numPoints
-    C_value = request.C
+    C_value = request.cValue
     radius = request.radius
     trainX = []
     testX = []
