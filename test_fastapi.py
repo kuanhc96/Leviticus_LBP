@@ -22,7 +22,7 @@ import pickle
 app = FastAPI()
 
 class LBPPredictRequest(BaseModel):
-    trainTaskId: int
+    trainId: int
     trainDataset: str # required
     predictDataset: str # required
     # numPoints & radius are LBP specific parameters, used to generate
@@ -212,7 +212,7 @@ def predict(request: LBPPredictRequest) -> dict:
     # obtain request parameters
     trainDataset = request.trainDataset
     predictDataset = request.predictDataset
-    trainTaskId = request.trainTaskId
+    trainTaskId = request.trainId
     numPoints = request.numPoints
     radius = request.radius
 
