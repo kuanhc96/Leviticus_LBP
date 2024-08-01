@@ -214,7 +214,7 @@ def train(request: LBPTrainRequest) -> LBPTrainResponse:
 # Otherwise, the ground-truth cannot be inferred, and the 
 # results of the prediction can simply be returned
 @app.post("/predict")
-def predict(request: LBPPredictRequest) -> dict:
+def predict(request: LBPPredictRequest) -> LBPPredictResponse:
     # obtain request parameters
     trainDataset = request.trainDataset
     predictDataset = request.predictDataset
