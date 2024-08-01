@@ -186,7 +186,7 @@ def train(request: LBPTrainRequest) -> LBPTrainResponse:
 
     print("[INFO] Scoring Model")
     accuracy = model.score(testX, testLabels)
-    classificationReport = classification_report(testLabels, predictions, labels=uniqueLabels)
+    classificationReport = classification_report(testLabels, predictions, target_names=uniqueLabels)
     print("[INFO] Train Request Complete, Returning Training Results")
     print("[INFO] Saving Trained Model")
     modelPath = os.path.join(PKL_PATH, str(taskId) + ".pkl")
@@ -274,7 +274,7 @@ def predict(request: LBPPredictRequest) -> LBPPredictResponse:
         uniqueLabels = np.unique(labels)
 
         accuracy = savedModel.score(testX, labels)
-        report = classification_report(labels, predictions, labels=uniqueLabels)
+        report = classification_report(labels, predictions, target_names=uniqueLabels)
 
     response = LBPPredictResponse(
         accuracy=accuracy,
